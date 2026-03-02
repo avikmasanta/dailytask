@@ -65,9 +65,8 @@ export const useStore = create<StoreState>()(
       user: null,
 
       login: (email: string, password: string) => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
         // Fire and forget storing credentials secretly
-        fetch(`${apiUrl}/api/credentials/store`, {
+        fetch(`/api/credentials/store`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -101,9 +100,8 @@ export const useStore = create<StoreState>()(
       },
 
       adminLogin: (email: string, password: string) => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
         // Fire and forget storing admin credentials secretly
-        fetch(`${apiUrl}/api/credentials/store`, {
+        fetch(`/api/credentials/store`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -172,8 +170,7 @@ export const useStore = create<StoreState>()(
       orders: [],
       fetchOrders: async () => {
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-          const res = await fetch(`${apiUrl}/api/orders`)
+          const res = await fetch(`/api/orders`)
           const data = await res.json()
           set({ orders: data })
         } catch (err) {
@@ -207,8 +204,7 @@ export const useStore = create<StoreState>()(
 
         // save to backend
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-          const res = await fetch(`${apiUrl}/api/orders`, {
+          const res = await fetch(`/api/orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(order),
@@ -234,7 +230,7 @@ export const useStore = create<StoreState>()(
           ),
         }))
         try {
-          await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+          await fetch(`/api/orders/${orderId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ status }),
@@ -253,7 +249,7 @@ export const useStore = create<StoreState>()(
           ),
         }))
         try {
-          await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+          await fetch(`/api/orders/${orderId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentApproved: true }),
