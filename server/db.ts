@@ -18,7 +18,10 @@ export async function connectToDatabase() {
 
   try {
     console.log("🔄 Connecting to MongoDB...");
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, {
+      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
+    });
     await client.connect();
     const db = client.db(dbName);
 
@@ -30,9 +33,9 @@ export async function connectToDatabase() {
 
     console.log(`✓ Connected to MongoDB database: ${dbName}`);
     return { client, db };
-  } catch (error) {
-    console.error("❌ MongoDB connection failed:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("❌ MongoDB connection failed:", error.message || error);
+    throw new Error(`Database connection failed: ${error.message || "Unknown error"}`);
   }
 }
 
