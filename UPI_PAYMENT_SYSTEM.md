@@ -147,5 +147,11 @@ Processing → Shipped → Delivered
 1. **Replace UPI QR Code:** Update `/images/upi-qr.png` with your actual merchant UPI QR code
 2. **Real Payment Integration:** Currently simulated; integrate with actual UPI payment gateway
 3. **Transaction Verification:** Add backend validation to verify transaction IDs with payment gateway
-4. **Email Notifications:** Send notifications to users when payment is approved
-5. **Transaction History:** Add detailed transaction logs in admin panel
+4. **Backend persistence:** Orders are now logged to a MongoDB collection (`orders`) and every change creates a simple audit entry in `orderLogs`.
+   - Configure `MONGODB_URI` and `MONGODB_DB` in `.env.local`.
+   - Core server logic lives under a new `server/` directory (`server/db.ts`, `server/mail.ts`).
+   - API routes in `app/api/orders` import from `@/server/*` and perform the actual database/email work.
+   - The front‑end store calls these routes when orders are placed or updated, keeping client state in sync with the database.
+5. **Email Notifications:** When an admin approves a UPI payment the server sends a confirmation email to the customer.
+   - Set `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS` (and optionally `EMAIL_FROM`) in `.env.local`.
+6. **Transaction History:** Add detailed transaction logs in admin panel

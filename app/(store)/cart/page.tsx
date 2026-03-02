@@ -78,18 +78,7 @@ export default function CartPage() {
                         <h3 className="font-serif text-base font-semibold text-foreground">
                           {item.product.name}
                         </h3>
-                        <div className="mt-1 flex flex-wrap gap-2">
-                          {Object.entries(item.selectedOptions).map(
-                            ([key, value]) => (
-                              <span
-                                key={key}
-                                className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground"
-                              >
-                                {key}: {value}
-                              </span>
-                            )
-                          )}
-                        </div>
+
                       </div>
                       <div className="mt-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">

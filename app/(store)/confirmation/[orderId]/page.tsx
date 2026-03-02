@@ -23,10 +23,16 @@ import { toast } from "sonner"
 export default function ConfirmationPage() {
   const params = useParams()
   const orderId = params.orderId as string
-  const { orders } = useStore()
+  const { orders, fetchOrders } = useStore()
   const order = orders.find((o) => o.id === orderId)
   const [qrDataUrl, setQrDataUrl] = useState<string>("")
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    // refresh the orders list from backend whenever this component mounts so
+    // status updates made by admin are reflected here
+    fetchOrders().catch(console.error)
+  }, [fetchOrders])
 
   useEffect(() => {
     if (order) {

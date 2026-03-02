@@ -42,12 +42,15 @@ const statusColors: Record<string, string> = {
 }
 
 export default function AdminDashboard() {
-  const { user, orders, updateOrderStatus, approvePayment, logout } = useStore()
+  const { user, orders, fetchOrders, updateOrderStatus, approvePayment, logout } = useStore()
   const router = useRouter()
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
       router.push("/admin")
+    } else {
+      // load latest orders from backend
+      fetchOrders().catch((e) => console.error(e))
     }
   }, [user, router])
 
@@ -78,16 +81,16 @@ export default function AdminDashboard() {
     },
   ]
 
-  function handleStatusChange(
+  async function handleStatusChange(
     orderId: string,
     status: "Pending" | "Processing" | "Shipped" | "Delivered"
   ) {
-    updateOrderStatus(orderId, status)
+    await updateOrderStatus(orderId, status)
     toast.success(`Order ${orderId} updated to ${status}`)
   }
 
-  function handleApprovePayment(orderId: string) {
-    approvePayment(orderId)
+  async function handleApprovePayment(orderId: string) {
+    await approvePayment(orderId)
     toast.success(`Payment approved for order ${orderId}`)
   }
 

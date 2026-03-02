@@ -77,7 +77,7 @@ export default function CheckoutPage() {
 
     setLoading(true)
     await new Promise((r) => setTimeout(r, 1200))
-    const order = placeOrder(name, email, address, paymentMethod, upiTxnId || undefined)
+    const order = await placeOrder(name, email, address, paymentMethod, upiTxnId || undefined)
     setLoading(false)
     toast.success("Order placed successfully! Please wait for admin approval if using UPI.")
     router.push(`/confirmation/${order.id}`)
@@ -164,11 +164,10 @@ export default function CheckoutPage() {
                   <label
                     key={method.value}
                     htmlFor={`pay-${method.value}`}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
-                      paymentMethod === method.value
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/40"
-                    }`}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${paymentMethod === method.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/40"
+                      }`}
                   >
                     <RadioGroupItem
                       value={method.value}
@@ -183,24 +182,41 @@ export default function CheckoutPage() {
               </RadioGroup>
 
               {paymentMethod === "UPI" && (
-                <div className="mt-6 flex flex-col items-center gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Scan the QR code below with your UPI app and complete the payment.
-                  </p>
-                  <img
-                    src="/images/upi-qr.png"
-                    alt="UPI QR Code"
-                    className="h-40 w-40"
-                  />
-                  <div className="w-full max-w-xs">
-                    <Label htmlFor="upi-txn">Transaction ID</Label>
-                    <Input
-                      id="upi-txn"
-                      placeholder="Enter transaction ID"
-                      value={upiTxnId}
-                      onChange={(e) => setUpiTxnId(e.target.value)}
-                      required
-                    />
+                <div className="mt-6 overflow-hidden rounded-xl border border-primary/20 bg-primary/5 p-6 shadow-sm">
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="text-center">
+                      <h3 className="font-serif text-lg font-semibold text-foreground">
+                        Pay with PhonePe
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Scan the QR code below using your preferred UPI app.
+                      </p>
+                    </div>
+
+                    <div className="relative flex items-center justify-center rounded-2xl bg-white p-4 shadow-md ring-1 ring-black/5">
+                      <img
+                        src="/images/qr.png"
+                        alt="PhonePe UPI QR Code"
+                        className="h-[380px] w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="w-full max-w-sm rounded-lg border border-border bg-background p-4 shadow-sm">
+                      <Label htmlFor="upi-txn" className="text-sm font-medium">
+                        Verification Step
+                      </Label>
+                      <p className="mb-3 text-xs text-muted-foreground">
+                        After successful payment, please enter your transaction ID below to confirm.
+                      </p>
+                      <Input
+                        id="upi-txn"
+                        placeholder="e.g. 301234567890"
+                        value={upiTxnId}
+                        onChange={(e) => setUpiTxnId(e.target.value)}
+                        className="bg-muted/50 focus-visible:ring-primary/50"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               )}
