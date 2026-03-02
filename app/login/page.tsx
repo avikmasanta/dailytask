@@ -25,7 +25,7 @@ export default function LoginPage() {
     setLoading(true)
     // Simulate a brief delay
     await new Promise((r) => setTimeout(r, 600))
-    const success = login(email, password)
+    const success = await login(email, password)
     setLoading(false)
     if (success) {
       toast.success("Welcome back!")

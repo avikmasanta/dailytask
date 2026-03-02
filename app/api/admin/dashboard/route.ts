@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         .length,
       shippedOrders: allOrders.filter((o: any) => o.status === "Shipped").length,
       deliveredOrders: allOrders.filter((o: any) => o.status === "Delivered").length,
-      totalRevenue: allOrders.reduce((sum: number, o: any) => sum + o.total, 0),
+      totalRevenue: allOrders.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0),
     };
 
     return NextResponse.json(

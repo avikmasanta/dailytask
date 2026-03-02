@@ -15,6 +15,22 @@ export async function POST(request: Request) {
 
     const { db } = await connectToDatabase();
 
+    // Ensure at least one admin exists (auto-provision for demo/first run)
+    const adminCount = await db.collection("admins").countDocuments();
+    if (adminCount === 0) {
+      console.log("🔐 Creating default admin user in Next.js API...");
+      await db.collection("admins").insertOne({
+        email: "admin@plannermarket.com",
+        password: "admin123", // Matches existing server/db.ts logic
+        name: "Admin",
+        role: "super-admin",
+        permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
     // Find admin by email
     const admin = await db.collection("admins").findOne({ email });
 
