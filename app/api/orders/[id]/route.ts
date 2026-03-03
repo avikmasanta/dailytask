@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "@/server/db"
 import { sendApprovalEmail } from "@/server/mail"
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const updates = await req.json()
   const { db } = await connectToDatabase()
 
@@ -13,7 +13,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     updateFields.paymentApproved = updates.paymentApproved
   }
 
-  const { value } = await db.collection("orders").findOneAndUpdate(
+  const value = await db.collection("orders").findOneAndUpdate(
     { id },
     { $set: updateFields },
     { returnDocument: "after" }

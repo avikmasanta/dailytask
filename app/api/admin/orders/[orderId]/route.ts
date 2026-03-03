@@ -6,7 +6,7 @@ import { sendApprovalEmail } from "@/lib/mailer";
 
 export async function POST(
   request: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     // Verify admin token
@@ -50,10 +50,11 @@ export async function POST(
       .findOne({ _id: new ObjectId(orderId) });
 
     // Send approval email to customer
-    if (updatedOrder?.email) {
+    const recipientEmail = updatedOrder?.customerEmail || updatedOrder?.email;
+    if (recipientEmail) {
       try {
         await sendApprovalEmail(
-          updatedOrder.email,
+          recipientEmail,
           orderId,
           updatedOrder.customerName || updatedOrder.name
         );
@@ -82,7 +83,7 @@ export async function POST(
 
 export async function GET(
   request: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     // Verify admin token
