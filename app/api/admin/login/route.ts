@@ -16,31 +16,35 @@ export async function POST(request: Request) {
     const { db } = await connectToDatabase();
 
     // Ensure at least one admin exists (auto-provision for demo/first run)
-    const adminCount = await db.collection("admins").countDocuments();
-    if (adminCount === 0) {
-      console.log("🔐 Creating default admin users in Next.js API...");
-      await db.collection("admins").insertMany([
-        {
-          email: "admin@plannermarket.com",
-          password: "admin123",
-          name: "Admin",
-          role: "super-admin",
-          permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          email: "admin@plannercraft.me",
-          password: "admin123",
-          name: "Ayush Admin",
-          role: "super-admin",
-          permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-      ]);
+    const adminsToEnsure = [
+      {
+        email: "admin@plannermarket.com",
+        password: "admin123",
+        name: "Admin",
+        role: "super-admin",
+        permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        email: "admin@plannercraft.me",
+        password: "admin123",
+        name: "Ayush Admin",
+        role: "super-admin",
+        permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    ];
+
+    for (const adminData of adminsToEnsure) {
+      const exists = await db.collection("admins").findOne({ email: adminData.email });
+      if (!exists) {
+        console.log(`🔐 Provisioning default admin: ${adminData.email}`);
+        await db.collection("admins").insertOne(adminData);
+      }
     }
 
     // Find admin by email
