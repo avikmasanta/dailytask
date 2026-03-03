@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
     e.preventDefault()
     setLoading(true)
     await new Promise((r) => setTimeout(r, 600))
-    const success = adminLogin(email, password)
+    const success = await adminLogin(email, password)
     setLoading(false)
     if (success) {
       toast.success("Welcome, Admin!")
