@@ -18,17 +18,29 @@ export async function POST(request: Request) {
     // Ensure at least one admin exists (auto-provision for demo/first run)
     const adminCount = await db.collection("admins").countDocuments();
     if (adminCount === 0) {
-      console.log("🔐 Creating default admin user in Next.js API...");
-      await db.collection("admins").insertOne({
-        email: "admin@plannermarket.com",
-        password: "admin123", // Matches existing server/db.ts logic
-        name: "Admin",
-        role: "super-admin",
-        permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      console.log("🔐 Creating default admin users in Next.js API...");
+      await db.collection("admins").insertMany([
+        {
+          email: "admin@plannermarket.com",
+          password: "admin123",
+          name: "Admin",
+          role: "super-admin",
+          permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          email: "admin@plannercraft.me",
+          password: "admin123",
+          name: "Ayush Admin",
+          role: "super-admin",
+          permissions: ["view_orders", "approve_payments", "update_order_status", "manage_admins"],
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      ]);
     }
 
     // Find admin by email
