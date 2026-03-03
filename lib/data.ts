@@ -42,7 +42,7 @@ export interface User {
   id: string
   name: string
   email: string
-  role: "user" | "admin"
+  role: "user" | "admin" | "super-admin"
 }
 
 export const products: Product[] = [

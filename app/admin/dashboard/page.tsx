@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -42,19 +42,25 @@ const statusColors: Record<string, string> = {
 }
 
 export default function AdminDashboard() {
-  const { user, orders, fetchOrders, updateOrderStatus, approvePayment, logout } = useStore()
+  const [mounted, setMounted] = useState(false)
+  const { user, orders, updateOrderStatus, approvePayment, fetchOrders, logout } = useStore()
   const router = useRouter()
 
   useEffect(() => {
-    if (!user || user.role !== "admin") {
-      router.push("/admin")
-    } else {
-      // load latest orders from backend
-      fetchOrders().catch((e) => console.error(e))
-    }
-  }, [user, router])
+    setMounted(true)
+  }, [])
 
-  if (!user || user.role !== "admin") {
+  useEffect(() => {
+    if (mounted) {
+      if (!user || user.role !== "super-admin") {
+        router.push("/admin")
+      } else {
+        fetchOrders()
+      }
+    }
+  }, [user, router, fetchOrders, mounted])
+
+  if (!mounted || !user || user.role !== "super-admin") {
     return null
   }
 
@@ -254,10 +260,10 @@ export default function AdminDashboard() {
                                   handleStatusChange(
                                     order.id,
                                     value as
-                                      | "Pending"
-                                      | "Processing"
-                                      | "Shipped"
-                                      | "Delivered"
+                                    | "Pending"
+                                    | "Processing"
+                                    | "Shipped"
+                                    | "Delivered"
                                   )
                                 }
                               >
